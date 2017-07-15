@@ -6,7 +6,8 @@ state.default({
   loaded: false,
   soundLoaded: false,
   lampOpacity: 1,
-  lampOnScene: false
+  lampOnScene: false,
+  lampLight: 0
 });
 
 state.config({

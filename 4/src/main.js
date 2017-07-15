@@ -10,7 +10,7 @@ import './lights/dinosaur';
 // logic
 import './logic/postprocessing';
 import './logic/audio';
-import './logic/stateChanger';
+// import './logic/stateChanger';
 
 // state
 import './state/config';

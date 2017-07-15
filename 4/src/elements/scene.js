@@ -1,4 +1,5 @@
 import {app} from '../app';
+import {assetsLoader} from '../modules';
 
 import OBJLoader from 'three-obj-loader';
 OBJLoader(THREE);
@@ -33,11 +34,14 @@ class MTLModule {
   }
 }
 
+assetsLoader.expect('scene');
+
 export const scene = new WHS.Importer({
   loader: new THREE.OBJLoader(),
   url: './assets/obj/scene5.obj',
 
   parser(group) {
+    assetsLoader.resolve('scene');
     return this.applyBridge({mesh: group}).mesh;
   },
 
@@ -50,4 +54,8 @@ export const scene = new WHS.Importer({
   scale: [0.1, 0.1, 0.1]
 });
 
-// scene.addTo(app);
+const state = app.use('state');
+
+assetsLoader.on('complete', () => {
+  state.to('preparingAudio');
+})

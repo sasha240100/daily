@@ -2,7 +2,9 @@ import {app} from '../app';
 import {lamps} from '../elements/lamps';
 import {scene} from '../elements/scene';
 import {ambient, point} from '../lights/dinosaur';
-import {sound} from '../logic/audio';
+import {sound, audioLoader} from '../logic/audio';
+import {lampData} from './data/lamp-data';
+import {soundLoader} from '../modules';
 
 import {Tween, Easing} from 'tween.js';
 
@@ -21,40 +23,65 @@ state.update({
     pageLoaded = true;
 
     const time = 1200;
+    const tweens = [];
 
     forlamp((lamp, i) => {
-      new Tween(lamp.position).to({x: i % 2 === 0 ? 10 : -10}, time)
-      .delay(1000)
-      .easing(Easing.Cubic.InOut)
-      .start()
-      .chain(
-        new Tween(lamp.mesh.rotation).to({z: i === 3 || i === 0 ? Math.PI / 4 : -Math.PI / 4}, time)
-        .easing(Easing.Cubic.InOut)
-        .onStart(() => {
-          new Tween(lamp.position).to({y: lamp.position.y + (i === 3 || i === 2 ? 4 : -4)}, time)
+      tweens.push(
+        new Promise(resolve => {
+          new Tween(lamp.position).to({x: i % 2 === 0 ? 10 : -10}, time)
+          // .delay(1000)
           .easing(Easing.Cubic.InOut)
           .start()
-        })
-        .chain(
-          new Tween(lamp.position).to(
-            {
-              y: lamp.position.y + (i === 3 || i === 2 ? 4 : -4) + (i % 2 === 0 ? 2 : -2),
-              x: i % 2 === 0 ? 8 : -8
-            },
-            time
-          )
-          .easing(Easing.Cubic.InOut)
-          .onComplete(() => {
-            lamp.blink();
-            preparingAudio.classList.add('active');
+          .chain(
+            new Tween(lamp.mesh.rotation).to({z: i === 3 || i === 0 ? Math.PI / 4 : -Math.PI / 4}, time)
+            .easing(Easing.Cubic.InOut)
+            .onStart(() => {
+              new Tween(lamp.position).to({y: lamp.position.y + (i === 3 || i === 2 ? 4 : -4)}, time)
+              .easing(Easing.Cubic.InOut)
+              .start()
+            })
+            .chain(
+              new Tween(lamp.position).to(
+                {
+                  y: lamp.position.y + (i === 3 || i === 2 ? 4 : -4) + (i % 2 === 0 ? 2 : -2),
+                  x: i % 2 === 0 ? 8 : -8
+                },
+                time
+              )
+              .easing(Easing.Cubic.InOut)
+              .onComplete(() => {
+                lamp.blink();
+                preparingAudio.classList.add('active');
 
-            setTimeout(() => {
-              preparingAudio.classList.add('active-text');
-              sound.play();
-            }, 2000);
-          })
-        )
+                resolve();
+
+                // setTimeout(() => {
+                //   preparingAudio.classList.add('active-text');
+                //   sound.setVolume(0.2);
+                //   sound.play();
+                // }, 2000);
+              })
+            )
+          )
+        })
       )
+    });
+
+    Promise.all(tweens).then(() => {
+      audioLoader.load('./assets/background.mp3', buffer => {
+        sound.setBuffer( buffer );
+        sound.setLoop(true);
+
+        preparingAudio.classList.add('active-text');
+        sound.setVolume(0.2);
+        sound.play();
+
+        soundLoader.resolve('sound');
+      });
+    })
+
+    soundLoader.on('complete', () => {
+      setTimeout(() => state.to('app'), 5000);
     });
   },
 
@@ -90,15 +117,36 @@ state.update({
     });
 
     Promise.all(lampAnimation).then(() => {
+      scene.addTo(app);
+
       state.set({
         lampOpacity: 1,
         lampOffset: 0,
-        lampPosition: 'scene'
+        lampPosition: {
+          config: 'beforeScene',
+          time: 0
+        }
       });
 
-      forlamp(lamp => {
-        lamp.blink();
+      let delay = 0;
+
+      forlamp((lamp, i) => {
+        lamp.scale.set(0.5, 0.5, 0.5);
+
+        lamp.moveDelay = delay;
+        delay += 150;
       });
+
+      state.set({
+        lampPosition: {
+          config: 'scene',
+          time: 2000
+        },
+
+        lampLight: 0.1
+      });
+
+      new Tween(ambient.native).to({intensity: 0.9}, 1000).delay(3400).start();
     });
   },
 
@@ -120,10 +168,45 @@ state.update({
     });
   },
 
-  lampPosition: name => {
-    const dataConfig = {
-      'scene'
-    };
+  lampLight: intensity => {
+    forlamp((lamp, i) => {
+      setTimeout(() => {
+        if (intensity > 0) {
+          lamp.blink();
+          lamp.fly(true);
+        }
+      }, lamp.moveDelay + 3000);
 
+      new Tween(lamp.light.native).to({intensity}, 2000).delay(lamp.moveDelay + 1000).start();
+    });
+  },
+
+  lampPosition: ({config, time}) => {
+    const conf = lampData[config];
+
+    forlamp((lamp, i) => {
+      const ltime = time.length ? time[i] : time;
+
+      if (ltime == 0) {
+        lamp.position.copy(conf.position[i]);
+        lamp.mesh.rotation.copy(conf.rotation[i]);
+
+        return;
+      }
+
+      new Tween(lamp.position).to(conf.position[i].clone(), ltime)
+        .delay(lamp.moveDelay)
+        .easing(Easing.Cubic.InOut)
+        .start();
+
+        console.log(lamp.mesh.native.rotation);
+      new Tween(lamp.mesh.rotation.clone()).to(conf.rotation[i].clone(), ltime)
+        .onUpdate(function() {
+          lamp.mesh.rotation.set(this.x, this.y, this.z);
+        })
+        .delay(lamp.moveDelay)
+        .easing(Easing.Cubic.InOut)
+        .start();
+    });
   }
 })

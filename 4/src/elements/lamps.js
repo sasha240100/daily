@@ -35,6 +35,7 @@ for (let i = 0; i < 4; i++) {
     color: 0xffffff,
     sideWidth: 7,
     width: 5.4,
+    angleOffset: i * Math.random(),
 
     position: [0, y, 0]
   });

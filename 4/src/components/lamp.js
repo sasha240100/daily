@@ -1,3 +1,5 @@
+import {app} from '../app';
+
 export class Lamp extends WHS.MeshComponent {
   // static defaults = {
   //   width: 10
@@ -9,13 +11,15 @@ export class Lamp extends WHS.MeshComponent {
       sideWidth: 20,
       radius: 0.5,
       offset: 0,
-      color: 0x333333
+      color: 0x333333,
+      angleOffset: 0
     }));
 
     this.manager.require('state', () => new WHS.StateModule());
     const state = this.manager.use('state');
 
-    // this.
+    this.moveTime = 0;
+    this.moveDelay = 0;
 
     state.set({
       width: this.params.width,
@@ -112,10 +116,36 @@ export class Lamp extends WHS.MeshComponent {
 
     // console.log(this.mesh.native.layers);
 
+    this.light = new WHS.PointLight({
+      intensity: 0, // 0.05
+      distance: 50,
+      decay: 2
+    });
+
+    this.light.native.color = this.lampMaterial.color;
+
     this.mesh.native.layers.enable(1);
+    this.mesh.add(this.light);
+
+    this.lObject = new THREE.Object3D();
+    this.lObject.add(this.mesh.native);
 
     this.object = new THREE.Object3D();
-    this.object.add(this.mesh.native);
+    this.object.add(this.lObject);
+
+    this.angle = this.params.angleOffset;
+
+    this.flyLoop = new WHS.Loop(() => {
+      this.lObject.position.set(
+        Math.sin(this.angle),
+        Math.cos(this.angle),
+        Math.sin(this.angle)
+      );
+
+      this.angle += 0.02;
+    });
+
+    app.addLoop(this.flyLoop);
 
     return this.object;
   }
@@ -191,5 +221,10 @@ export class Lamp extends WHS.MeshComponent {
     this.mesh.material.color.setHex(destColor);
     setTimeout(() => this.mesh.material.color.setHex(originColor), time / 3);
     setTimeout(() => this.mesh.material.color.setHex(destColor), time);
+  }
+
+  fly(isFly) {
+    if (isFly) this.flyLoop.start();
+    else this.flyLoop.stop();
   }
 }
