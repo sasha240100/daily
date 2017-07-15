@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  /*background: #111;*/
+}
+
+.description h3 {
+  color: white;
+  position: fixed;
+  z-index: 3;
+  right: 40px;
+  top: 20px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.description h3 span {
+  color: #c7c7c7;
+}
+
+.description.inverse h3 {
+  color: #555;
+}
+
+.description.inverse h3 span {
+  color: #aaa;
+}

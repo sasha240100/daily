@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css?family=Raleway:200');
+
+.preparing-audio {
+  position: fixed;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.preparing-audio img {
+  position: fixed;
+  left: calc(50% - 35px);
+  top: calc(50% - 15px);
+  width: 70px;
+
+  transition: all 2s cubic-bezier(.2,.56,.06,.96);
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.preparing-audio span {
+  display: inline;
+  position: fixed;
+  top: calc(50% - 15px);
+  left: 0;
+  right: 0;
+  width: auto;
+  color: white;
+  text-align: center;
+  transform: translateY(70px);
+  font-family: 'Raleway', sans-serif;
+  font-size: 10pt;
+  color: #ccc;
+  letter-spacing: 0.5pt;
+
+  transition: all 2s cubic-bezier(.2,.56,.06,.96);
+  opacity: 0;
+  transform: translateY(90px);
+}
+
+.preparing-audio.active img {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* active-text */
+
+.preparing-audio.active-text img {
+  opacity: 1;
+  transform: translateY(-20px);
+}
+
+.preparing-audio.active-text span {
+  opacity: 1;
+  transform: translateY(70px);
+}
+
+/* inactive */
+
+.preparing-audio.inactive img {
+  transition: transform 0.8s ease-in-out 0.1s, opacity 0.8s ease-out;
+  opacity: 0;
+  transform: translateY(-60px);
+}
+
+.preparing-audio.inactive span {
+  transition: transform 0.8s ease-in-out 0.4s, opacity 0.8s ease-out 0.3s;
+  opacity: 0;
+  transform: translateY(30px);
+}
