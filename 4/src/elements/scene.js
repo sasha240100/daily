@@ -38,7 +38,7 @@ assetsLoader.expect('scene');
 
 export const scene = new WHS.Importer({
   loader: new THREE.OBJLoader(),
-  url: './assets/obj/scene5.obj',
+  url: './assets/obj/scene6.obj',
 
   parser(group) {
     assetsLoader.resolve('scene');
@@ -46,7 +46,7 @@ export const scene = new WHS.Importer({
   },
 
   modules: [
-    new MTLModule('./assets/obj/scene5.mtl', (material, name) => {
+    new MTLModule('./assets/obj/scene6.mtl', (material, name) => {
       material.map = WHS.TextureModule.load(`./assets/tex/${name}Ambient_Occlusion.jpg`);
     })
   ],

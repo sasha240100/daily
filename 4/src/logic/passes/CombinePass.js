@@ -6,6 +6,7 @@ export default class CombinePass extends POSTPROCESSING.Pass {
     this.material.uniforms.texture2.value = renderTarget.texture;
 
     this.quad.material = this.material;
+    // this.needsSwap = true;
   }
 
   render(renderer, readBuffer, writeBuffer) {

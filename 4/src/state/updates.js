@@ -1,10 +1,11 @@
-import {app} from '../app';
+import {app, controls} from '../app';
 import {lamps} from '../elements/lamps';
 import {scene} from '../elements/scene';
 import {ambient, point} from '../lights/dinosaur';
-import {sound, audioLoader} from '../logic/audio';
+import {sound, audioLoader, audioLoop, ambientAudio} from '../logic/audio';
 import {lampData} from './data/lamp-data';
 import {soundLoader} from '../modules';
+import {turnerWake, toggleSound} from '../dom';
 
 import {Tween, Easing} from 'tween.js';
 
@@ -91,6 +92,8 @@ state.update({
 
     const lampAnimation = [];
 
+    app.use('performance').start();
+
     forlamp(lamp => {
       lampAnimation.push(
         new Promise(resolve => {
@@ -146,7 +149,26 @@ state.update({
         lampLight: 0.1
       });
 
-      new Tween(ambient.native).to({intensity: 0.9}, 1000).delay(3400).start();
+      turnerWake();
+      setTimeout(() => toggleSound(false), 600);
+
+      controls.enabled = true;
+
+      new Tween(controls).to({distance: 20}, 4000).easing(Easing.Quartic.InOut)
+        .onUpdate(() => {
+          controls.update();
+        })
+        .onComplete(() => {
+          controls.update();
+        }).start();
+
+      new Tween(ambient.native).to({intensity: 0.9}, 1000).delay(3400).onComplete(() => {
+        new Tween(ambient.native).to({intensity: 0}, 2500).delay(2000)
+        .easing(Easing.Quartic.In)
+        .onComplete(() => {
+          audioLoop.start();
+        }).start();
+      }).start();
     });
   },
 
