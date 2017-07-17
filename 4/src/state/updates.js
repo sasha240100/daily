@@ -23,6 +23,8 @@ state.update({
     if (pageLoaded || loaded == false) return;
     pageLoaded = true;
 
+    document.querySelector('.loading').classList.add('active');
+
     const time = 1200;
     const tweens = [];
 
@@ -92,7 +94,8 @@ state.update({
 
     const lampAnimation = [];
 
-    app.use('performance').start();
+    const perf = app.use('performance');
+    perf.start();
 
     forlamp(lamp => {
       lampAnimation.push(
@@ -148,6 +151,8 @@ state.update({
 
         lampLight: 0.1
       });
+
+      if (perf.enabled.dof) document.querySelector('.render-quality span').classList.toggle('hq');
 
       turnerWake();
       setTimeout(() => toggleSound(false), 600);

@@ -1,5 +1,9 @@
 import {app} from '../app';
 
+const dispose = geom => {
+  geom.dispose();
+};
+
 export class Lamp extends WHS.MeshComponent {
   // static defaults = {
   //   width: 10
@@ -57,9 +61,9 @@ export class Lamp extends WHS.MeshComponent {
   }
 
   updateGeometries({lampGeometry, lampLeftGeometry, lampRightGeometry}) {
-    this.mesh.geometry.dispose();
-    this.sideLeft.geometry.dispose();
-    this.sideRight.geometry.dispose();
+    dispose(this.mesh.geometry);
+    dispose(this.sideLeft.geometry);
+    dispose(this.sideRight.geometry);
 
     this.mesh.geometry = lampGeometry;
     this.sideLeft.geometry = lampLeftGeometry;

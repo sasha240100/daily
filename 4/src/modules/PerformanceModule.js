@@ -30,38 +30,35 @@ export default class PerformanceModule extends Events {
     this.app = manager.handler;
 
     this.loop = new WHS.Loop(() => {
-      // ticker.tick();
-      // this.rate = ticker.rate;
-      //
-      // this.avgRate = (this.iteration * this.avgRate + this.rate) / (this.iteration + 1);
-      //
-      // if (this.iteration % this.framesToUpdate == 0 && this.iteration > this.iterationStart && !this.block) {
-      //   console.log(this.avgRate);
-      //   for (let key in config) {
-      //     const erate = config[key];
-      //
-      //     this.enable(key);
-      //
-      //     if (this.enabled[key] && erate > this.avgRate) {
-      //       console.log(key);
-      //       // console.log(this.avgRate);
-      //       this.disable(key);
-      //       this.block = true;
-      //       this.iteration = 1;
-      //       this.avgRate = 60;
-      //
-      //       setTimeout(() => {
-      //         this.block = false;
-      //       }, this.blockTimeout);
-      //
-      //       delete config[key];
-      //     }
-      //
-      //     break;
-      //   }
-      // }
-      //
-      // this.iteration++;
+      ticker.tick();
+      this.rate = ticker.rate;
+
+      this.avgRate = (this.iteration * this.avgRate + this.rate) / (this.iteration + 1);
+
+      if (this.iteration % this.framesToUpdate == 0 && this.iteration > this.iterationStart && !this.block) {
+        for (let key in config) {
+          const erate = config[key];
+
+          this.enable(key);
+
+          if (this.enabled[key] && erate > this.avgRate) {
+            this.disable(key);
+            this.block = true;
+            this.iteration = 1;
+            this.avgRate = 60;
+
+            setTimeout(() => {
+              this.block = false;
+            }, this.blockTimeout);
+
+            delete config[key];
+          }
+
+          break;
+        }
+      }
+
+      this.iteration++;
     })
   }
 

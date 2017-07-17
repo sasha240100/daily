@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css?family=Raleway:200');
 
-/*body {
+body {
   overflow: hidden;
-}*/
+}
 
 .preparing-audio {
   position: fixed;
   z-index: 3;
-  /*pointer-events: none;*/
+  pointer-events: none;
 }
 
 .preparing-audio img {
@@ -102,9 +102,9 @@
 }
 
 
-.description * {
+/*.description * {
   mix-blend-mode: difference;
-}
+}*/
 
 .render-quality {
   position: fixed;

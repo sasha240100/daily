@@ -1,5 +1,5 @@
 import {processor} from '../modules';
-import {app, dat} from '../app';
+import {app, isMobile} from '../app';
 import RTPass from './passes/RTPass';
 import MaskPass from './passes/MaskPass';
 import CombinePass from './passes/CombinePass';
@@ -41,13 +41,26 @@ function toggleSpan(self) {
   rspan.classList.toggle('hq');
 }
 
+const bloomControl = self => {
+  perf.on('bloom', val => {
+    self.enabled = val;
+  });
+
+  rspan.addEventListener('click', () => {
+    self.enabled = !isMobile;
+  });
+}
+
 processor
   .render()
   .pass(
     // dof
-    new TogglePass(dof).control(self => {
+    new TogglePass(dof, !isMobile).control(self => {
       perf.on('dof', val => {
         self.enabled = val;
+
+        if (val) rspan.classList.add('hq');
+        else rspan.classList.remove('hq');
       });
 
       rspan.addEventListener('click', () => toggleSpan(self));
@@ -62,14 +75,8 @@ processor
           1
         ),
         {write: maskRT}
-      )
-    ).control(self => {
-      perf.on('bloom', val => {
-        console.log('bloom');
-        console.log(val);
-        self.enabled = val;
-      });
-    })
+      ), !isMobile
+    ).control(bloomControl)
   )
   .pass(
     new TogglePass(
@@ -85,21 +92,13 @@ processor
         bloom => {
           bloom.combineMaterial.uniforms.opacity1.value = 0;
         }
-      )
-    ).control(self => {
-      perf.on('bloom', val => {
-        self.enabled = val;
-      });
-    })
+      ), !isMobile
+    ).control(bloomControl)
   )
   .pass(
     new TogglePass(
-      new CombinePass(bloomRT)
-    ).control(self => {
-      perf.on('bloom', val => {
-        self.enabled = val;
-      });
-    })
+      new CombinePass(bloomRT), !isMobile
+    ).control(bloomControl)
   )
   // .render()
   .pass(new ScreenPass())

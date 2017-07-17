@@ -16,4 +16,4 @@ import './logic/audio';
 import './state/config';
 import './state/updates';
 
-// import './dom';
+import './dom';
